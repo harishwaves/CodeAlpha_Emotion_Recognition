@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Emotion prediction result — {{ emotion | capitalize }} detected with {{ confidence_pct }}% confidence.">
+    <title>Result — {{ emotion | capitalize }} | Speech Emotion Recognition</title>
+
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <!-- ── Animated Background ────────────────────────────────────── -->
+    <div class="bg-animation">
+        <div class="bg-orb"></div>
+        <div class="bg-orb"></div>
+        <div class="bg-orb"></div>
+    </div>
+
+    <!-- ── Main Container ─────────────────────────────────────────── -->
+    <div class="container">
+
+        <!-- Header (compact) -->
+        <header class="header" style="margin-bottom: 24px;">
+            <span class="header__icon" style="font-size: 2.5rem;">🎙️</span>
+            <h1 class="header__title" style="font-size: 1.6rem;">
+                Emotion Detected
+            </h1>
+        </header>
+
+        <!-- Result Card -->
+        <div class="card">
+
+            <!-- Hero: Emoji + Emotion + Confidence -->
+            <div class="result-hero">
+                <span class="result-hero__emoji">{{ emoji }}</span>
+                <h2 class="result-hero__emotion">{{ emotion }}</h2>
+                <p class="result-hero__confidence">
+                    Confidence: <span>{{ confidence_pct }}%</span>
+                </p>
+            </div>
+
+            <!-- Confidence Meter -->
+            <div class="confidence-meter">
+                <div class="confidence-meter__bar-bg">
+                    <div class="confidence-meter__bar-fill"
+                         style="width: {{ confidence_pct }}%;"></div>
+                </div>
+            </div>
+
+            <!-- Probability Breakdown -->
+            <div class="prob-section">
+                <p class="prob-section__title">All Emotion Probabilities</p>
+
+                {% for label, prob in sorted_probs %}
+                <div class="prob-row">
+                    <span class="prob-row__label">{{ label }}</span>
+                    <div class="prob-row__bar-bg">
+                        <div class="prob-row__bar-fill
+                                    {% if loop.first %}prob-row__bar-fill--top{% else %}prob-row__bar-fill--other{% endif %}"
+                             style="width: {{ (prob * 100) | round(1) }}%;">
+                        </div>
+                    </div>
+                    <span class="prob-row__value">{{ (prob * 100) | round(1) }}%</span>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Audio Playback -->
+            <div class="audio-player">
+                <p class="audio-player__label">🎧 Uploaded Audio — {{ filename }}</p>
+                <audio controls preload="metadata">
+                    <source src="{{ audio_url }}"
+                            type="audio/{{ 'mpeg' if audio_ext == 'mp3' else 'wav' }}">
+                    Your browser does not support audio playback.
+                </audio>
+            </div>
+        </div>
+
+        <!-- Back Button -->
+        <a href="{{ url_for('index') }}" class="btn-secondary">
+            ← &nbsp;Analyze Another File
+        </a>
+
+        <!-- Footer -->
+        <footer class="footer">
+            Speech Emotion Recognition &nbsp;·&nbsp;
+            Built with Flask, TensorFlow &amp; Librosa
+        </footer>
+    </div>
+
+    <!-- ── Animate bars on load ───────────────────────────────────── -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Stagger probability bar animations
+            document.querySelectorAll('.prob-row__bar-fill').forEach((bar, i) => {
+                const width = bar.style.width;
+                bar.style.width = '0%';
+                setTimeout(() => {
+                    bar.style.width = width;
+                }, 200 + i * 100);
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Speech Emotion Recognition — Upload speech audio and detect emotions using deep learning (CNN + LSTM). Supports happy, sad, angry, neutral, fearful, disgust, surprised.">
+    <title>Speech Emotion Recognition</title>
+
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <!-- ── Animated Background ────────────────────────────────────── -->
+    <div class="bg-animation">
+        <div class="bg-orb"></div>
+        <div class="bg-orb"></div>
+        <div class="bg-orb"></div>
+    </div>
+
+    <!-- ── Main Container ─────────────────────────────────────────── -->
+    <div class="container">
+
+        <!-- Header -->
+        <header class="header">
+            <span class="header__icon">🎙️</span>
+            <h1 class="header__title">Speech Emotion Recognition</h1>
+            <p class="header__subtitle">
+                Upload a speech audio file and let AI detect the emotion
+            </p>
+        </header>
+
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <div class="flash-messages">
+            {% for category, message in messages %}
+            <div class="flash flash--{{ category }}" role="alert">
+                {% if category == 'error' %}⚠️{% else %}✅{% endif %}
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% endwith %}
+
+        <!-- Upload Card -->
+        <div class="card">
+            <form id="uploadForm"
+                  action="{{ url_for('predict') }}"
+                  method="POST"
+                  enctype="multipart/form-data">
+
+                <!-- Drop Zone -->
+                <div class="upload-area" id="dropZone">
+                    <span class="upload-area__icon">📂</span>
+                    <p class="upload-area__text">
+                        Drag &amp; drop your audio here or
+                        <strong>browse files</strong>
+                    </p>
+                    <p class="upload-area__formats">
+                        Supported formats: .wav, .mp3 &nbsp;·&nbsp; Max 16 MB
+                    </p>
+                    <input type="file"
+                           id="audioInput"
+                           name="audio_file"
+                           accept=".wav,.mp3,audio/wav,audio/mpeg">
+                </div>
+
+                <!-- Selected File Info -->
+                <div class="file-info" id="fileInfo">
+                    <span class="file-info__icon">🎵</span>
+                    <span class="file-info__name" id="fileName"></span>
+                    <button type="button"
+                            class="file-info__remove"
+                            id="removeFile"
+                            title="Remove file">✕</button>
+                </div>
+
+                <!-- Submit -->
+                <button type="submit"
+                        class="btn-primary"
+                        id="submitBtn"
+                        disabled>
+                    🔍 &nbsp;Analyze Emotion
+                </button>
+            </form>
+
+            <!-- Loading -->
+            <div class="spinner" id="spinner">
+                <div class="spinner__circle"></div>
+                <p class="spinner__text">Analyzing speech patterns…</p>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="footer">
+            Speech Emotion Recognition &nbsp;·&nbsp;
+            Built with Flask, TensorFlow &amp; Librosa
+        </footer>
+    </div>
+
+    <!-- ── JavaScript ─────────────────────────────────────────────── -->
+    <script>
+        const dropZone   = document.getElementById('dropZone');
+        const audioInput = document.getElementById('audioInput');
+        const fileInfo   = document.getElementById('fileInfo');
+        const fileName   = document.getElementById('fileName');
+        const removeFile = document.getElementById('removeFile');
+        const submitBtn  = document.getElementById('submitBtn');
+        const uploadForm = document.getElementById('uploadForm');
+        const spinner    = document.getElementById('spinner');
+
+        // ── File selection ───────────────────────────────────────────
+        audioInput.addEventListener('change', () => {
+            if (audioInput.files.length > 0) {
+                showFileInfo(audioInput.files[0].name);
+            }
+        });
+
+        function showFileInfo(name) {
+            fileName.textContent = name;
+            fileInfo.classList.add('visible');
+            submitBtn.disabled = false;
+        }
+
+        // ── Remove file ──────────────────────────────────────────────
+        removeFile.addEventListener('click', () => {
+            audioInput.value = '';
+            fileInfo.classList.remove('visible');
+            submitBtn.disabled = true;
+        });
+
+        // ── Drag & drop ──────────────────────────────────────────────
+        ['dragenter', 'dragover'].forEach(evt => {
+            dropZone.addEventListener(evt, e => {
+                e.preventDefault();
+                dropZone.classList.add('dragover');
+            });
+        });
+
+        ['dragleave', 'drop'].forEach(evt => {
+            dropZone.addEventListener(evt, e => {
+                e.preventDefault();
+                dropZone.classList.remove('dragover');
+            });
+        });
+
+        dropZone.addEventListener('drop', e => {
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                audioInput.files = files;
+                showFileInfo(files[0].name);
+            }
+        });
+
+        // ── Form submit → show spinner ───────────────────────────────
+        uploadForm.addEventListener('submit', () => {
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Processing…';
+            spinner.classList.add('visible');
+        });
+    </script>
+</body>
+</html>

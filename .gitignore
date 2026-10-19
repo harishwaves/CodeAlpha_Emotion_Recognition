@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Virtual environments and local configuration
+.venv/
+venv/
+env/
+.env
+
+# Generated application uploads
+static/uploads/*
+!static/uploads/.gitkeep
+
+# Large local datasets and generated machine-learning artifacts
+data/*
+!data/.gitkeep
+
+# OS and editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
