@@ -125,6 +125,34 @@ Evaluate the trained model on held-out speakers:
 python -m src.evaluate --data-dir data --model-dir data/models
 ```
 
+## Model performance
+
+The current CNN-BiLSTM checkpoint was evaluated on a speaker-independent RAVDESS test split: actors in the test set are not used during training or validation. This is a more realistic measure than a random audio-level split.
+
+| Metric | Score |
+| --- | ---: |
+| Test accuracy | 0.48 |
+| Macro-average precision | 0.49 |
+| Macro-average recall | 0.47 |
+| Macro-average F1-score | 0.46 |
+| Weighted-average F1-score | 0.47 |
+| Test samples | 240 |
+
+Per-class metrics:
+
+| Emotion | Precision | Recall | F1-score | Support |
+| --- | ---: | ---: | ---: | ---: |
+| Angry | 0.43 | 0.72 | 0.54 | 32 |
+| Calm | 0.62 | 0.47 | 0.54 | 32 |
+| Disgust | 0.43 | 0.69 | 0.53 | 32 |
+| Fearful | 0.54 | 0.63 | 0.58 | 32 |
+| Happy | 0.59 | 0.31 | 0.41 | 32 |
+| Neutral | 0.26 | 0.31 | 0.29 | 16 |
+| Sad | 0.36 | 0.28 | 0.32 | 32 |
+| Surprised | 0.58 | 0.44 | 0.50 | 32 |
+
+These results are for the current trained checkpoint and can vary with a different split, training run, configuration, or dataset preparation. The model is intended as an educational/local project and should not be used to determine a person's actual emotional state.
+
 Run a single prediction from the command line:
 
 ```bash
